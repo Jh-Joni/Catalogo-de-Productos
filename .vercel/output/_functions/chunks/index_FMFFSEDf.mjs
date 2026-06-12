@@ -1,0 +1,31 @@
+import { c as createComponent } from './astro-component_BgSpqzx5.mjs';
+import 'piccolore';
+import { o as renderHead, h as addAttribute, k as renderTemplate } from './entrypoint_BRll9zu0.mjs';
+import 'clsx';
+import { r as renderScript } from './script_BAnHsMNb.mjs';
+import { s as supabase } from './supabase_D3mCbMb8.mjs';
+
+const $$Index = createComponent(async ($$result, $$props, $$slots) => {
+  let productos = [];
+  try {
+    const { data } = await supabase.from("productos").select("id, nombre, precio, imagen_url").order("created_at", { ascending: false });
+    productos = data || [];
+  } catch (e) {
+    console.error(e);
+  }
+  return renderTemplate`<html lang="es" data-astro-cid-u2h3djql> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin - Gestión de Catálogo</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">${renderHead()}</head> <body data-astro-cid-u2h3djql> <div class="container" data-astro-cid-u2h3djql> <header data-astro-cid-u2h3djql> <a href="/" class="back-link" data-astro-cid-u2h3djql>← Volver al Catálogo</a> <h1 data-astro-cid-u2h3djql>Gestión Exclusiva</h1> <p class="subtitle" data-astro-cid-u2h3djql>Administración del catálogo de tejidos</p> </header> <!-- SECCIÓN DE LOGIN --> <div id="loginSection" data-astro-cid-u2h3djql> <div class="lock-icon" data-astro-cid-u2h3djql>🔒</div> <div class="form-group" data-astro-cid-u2h3djql> <label for="adminPass" data-astro-cid-u2h3djql>Contraseña de Acceso</label> <input type="password" id="adminPass" placeholder="Ingresa la contraseña" data-astro-cid-u2h3djql> </div> <button id="loginBtn" class="submit-btn" data-astro-cid-u2h3djql>Ingresar</button> <p id="loginError" style="color: #f87171; margin-top: 15px; display: none; font-size: 13px;" data-astro-cid-u2h3djql>Contraseña incorrecta.</p> </div> <!-- SECCIÓN DEL FORMULARIO --> <div id="mainApp" data-astro-cid-u2h3djql> <form id="formProducto" data-astro-cid-u2h3djql> <div class="form-group" data-astro-cid-u2h3djql> <label for="nombre" data-astro-cid-u2h3djql>Nombre de la Obra</label> <input type="text" id="nombre" name="nombre" placeholder="Ej. Rosa Eterna en Cúpula" required data-astro-cid-u2h3djql> </div> <div class="form-group" data-astro-cid-u2h3djql> <label for="descripcion" data-astro-cid-u2h3djql>Detalles y Significado</label> <textarea id="descripcion" name="descripcion" placeholder="Describe los materiales, el tamaño y lo que hace especial a esta pieza..." data-astro-cid-u2h3djql></textarea> </div> <div class="form-group" data-astro-cid-u2h3djql> <label for="precio" data-astro-cid-u2h3djql>Valor (USD)</label> <input type="number" id="precio" name="precio" placeholder="0.00" step="0.01" min="0" required data-astro-cid-u2h3djql> </div> <div class="form-group" data-astro-cid-u2h3djql> <label data-astro-cid-u2h3djql>Fotografía del Producto</label> <div class="file-upload-wrapper" id="uploadWrapper" data-astro-cid-u2h3djql> <div class="upload-icon" data-astro-cid-u2h3djql>📸</div> <div class="upload-text" id="uploadText" data-astro-cid-u2h3djql>Toca aquí para seleccionar una foto</div> <div class="upload-hint" data-astro-cid-u2h3djql>Formatos: JPG, PNG, WEBP</div> <input type="file" id="imagen" name="imagen" accept="image/*" required data-astro-cid-u2h3djql> </div> <div class="preview-container" id="previewContainer" data-astro-cid-u2h3djql> <img id="imagePreview" src="" alt="Vista previa" data-astro-cid-u2h3djql> <button type="button" class="remove-btn" id="removeImageBtn" data-astro-cid-u2h3djql>×</button> </div> </div> <button type="submit" class="submit-btn" id="submitBtn" data-astro-cid-u2h3djql> <span class="spinner" id="btnSpinner" data-astro-cid-u2h3djql></span> <span id="btnText" data-astro-cid-u2h3djql>Publicar en el Catálogo</span> </button> </form> <div class="notification" id="notification" data-astro-cid-u2h3djql></div> <div class="product-list" data-astro-cid-u2h3djql> <h3 style="margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; color: var(--text-main);" data-astro-cid-u2h3djql>Editar Precios</h3> ${productos.map((p) => renderTemplate`<div class="edit-item"${addAttribute(p.id, "data-id")}${addAttribute(p.imagen_url || "", "data-imagen")} data-astro-cid-u2h3djql> <img${addAttribute(p.imagen_url || "https://images.unsplash.com/photo-1546842931-886c185b4c8c?q=80&w=600&auto=format&fit=crop", "src")}${addAttribute(p.nombre, "alt")} data-astro-cid-u2h3djql> <div class="edit-info" data-astro-cid-u2h3djql> <div class="edit-name" data-astro-cid-u2h3djql>${p.nombre}</div> </div> <div class="edit-price-wrapper" data-astro-cid-u2h3djql> <span style="color: var(--text-muted);" data-astro-cid-u2h3djql>$</span> <input type="number" class="edit-price-input"${addAttribute(p.precio, "value")} step="0.01" data-astro-cid-u2h3djql> <button class="btn-update" data-astro-cid-u2h3djql>Guardar</button> <button class="btn-delete" title="Eliminar Obra" data-astro-cid-u2h3djql>🗑</button> </div> </div>`)} ${productos.length === 0 && renderTemplate`<p style="font-size: 13px; color: var(--text-muted);" data-astro-cid-u2h3djql>No hay productos en el catálogo aún.</p>`} </div> </div> </div> ${renderScript($$result, "C:/Users/Jonni/Documents/CatalogoFlores/Catalogo-de-Productos/src/pages/admin/index.astro?astro&type=script&index=0&lang.ts")} ${renderScript($$result, "C:/Users/Jonni/Documents/CatalogoFlores/Catalogo-de-Productos/src/pages/admin/index.astro?astro&type=script&index=1&lang.ts")} </body> </html>`;
+}, "C:/Users/Jonni/Documents/CatalogoFlores/Catalogo-de-Productos/src/pages/admin/index.astro", void 0);
+
+const $$file = "C:/Users/Jonni/Documents/CatalogoFlores/Catalogo-de-Productos/src/pages/admin/index.astro";
+const $$url = "/admin";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: $$Index,
+  file: $$file,
+  url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };
