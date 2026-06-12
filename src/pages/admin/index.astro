@@ -1,0 +1,690 @@
+---
+// Panel de administración - Subir productos
+import { supabase } from '../../lib/supabase.js';
+
+let productos = [];
+try {
+  const { data } = await supabase.from('productos').select('id, nombre, precio, imagen_url').order('created_at', { ascending: false });
+  productos = data || [];
+} catch (e) {
+  console.error(e);
+}
+---
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Gestión de Catálogo</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0f0814;
+      --bg-gradient: linear-gradient(145deg, #1a0b1c 0%, #0f0814 100%);
+      --accent-gold: #d4af37;
+      --accent-gold-hover: #f3d56a;
+      --accent-rose: #b76e79;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --input-bg: rgba(0, 0, 0, 0.4);
+      --text-main: #fdfbf7;
+      --text-muted: #c4b8b5;
+      --border-color: rgba(212, 175, 55, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg-dark);
+      background-image: radial-gradient(circle at 50% 0%, #2d142c 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, #1a0b1c 0%, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 50px 40px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(15px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-gold);
+      text-decoration: none;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: var(--accent-gold-hover); }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+
+    p.subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    /* PANTALLA DE LOGIN */
+    #loginSection {
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    #loginSection .lock-icon {
+      font-size: 48px;
+      color: var(--accent-gold);
+      margin-bottom: 20px;
+    }
+
+    /* FORMULARIO PRINCIPAL (Oculto por defecto) */
+    #mainApp {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--input-bg);
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text-main);
+      transition: all 0.3s ease;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    /* Imagen Upload */
+    .file-upload-wrapper {
+      position: relative;
+      border: 1px dashed var(--accent-gold);
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      background: rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload-wrapper:hover {
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .file-upload-wrapper input[type="file"] {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+
+    .upload-icon { font-size: 36px; margin-bottom: 15px; }
+    .upload-text { font-size: 15px; color: var(--text-main); margin-bottom: 5px; }
+    .upload-hint { font-size: 13px; color: var(--text-muted); }
+
+    .preview-container {
+      display: none;
+      margin-top: 15px;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .preview-container img {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 15px; right: 15px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 35px; height: 35px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Botones */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.05));
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+      transition: all 0.6s ease;
+    }
+
+    .submit-btn:hover {
+      background: var(--accent-gold);
+      color: #000;
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    .submit-btn:disabled {
+      background: rgba(255,255,255,0.05);
+      color: #777;
+      border-color: rgba(255,255,255,0.1);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Notificaciones */
+    .notification {
+      display: none;
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-weight: 500;
+      margin-top: 25px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .notification.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .notification.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .spinner {
+      display: none;
+      width: 20px; height: 20px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Lista de Edición */
+    .product-list {
+      margin-top: 50px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 30px;
+    }
+    .edit-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(0,0,0,0.2);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .edit-item img {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .edit-info {
+      flex: 1;
+    }
+    .edit-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-gold);
+      margin-bottom: 4px;
+    }
+    .edit-price-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .edit-item input[type="number"] {
+      width: 90px;
+      padding: 8px 12px;
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+    .btn-update {
+      padding: 8px 15px;
+      background: var(--accent-gold);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+    .btn-update:hover {
+      background: var(--accent-gold-hover);
+      transform: translateY(-1px);
+    }
+    .btn-delete {
+      padding: 8px 15px;
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+    .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.4);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <a href="/" class="back-link">← Volver al Catálogo</a>
+      <h1>Gestión Exclusiva</h1>
+      <p class="subtitle">Administración del catálogo de tejidos</p>
+    </header>
+
+    <!-- SECCIÓN DE LOGIN -->
+    <div id="loginSection">
+      <div class="lock-icon">🔒</div>
+      <div class="form-group">
+        <label for="adminPass">Contraseña de Acceso</label>
+        <input type="password" id="adminPass" placeholder="Ingresa la contraseña" />
+      </div>
+      <button id="loginBtn" class="submit-btn">Ingresar</button>
+      <p id="loginError" style="color: #f87171; margin-top: 15px; display: none; font-size: 13px;">Contraseña incorrecta.</p>
+    </div>
+
+    <!-- SECCIÓN DEL FORMULARIO -->
+    <div id="mainApp">
+      <form id="formProducto">
+        <div class="form-group">
+          <label for="nombre">Nombre de la Obra</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej. Rosa Eterna en Cúpula" required />
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Detalles y Significado</label>
+          <textarea id="descripcion" name="descripcion" placeholder="Describe los materiales, el tamaño y lo que hace especial a esta pieza..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="precio">Valor (USD)</label>
+          <input type="number" id="precio" name="precio" placeholder="0.00" step="0.01" min="0" required />
+        </div>
+
+        <div class="form-group">
+          <label>Fotografía del Producto</label>
+          <div class="file-upload-wrapper" id="uploadWrapper">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text" id="uploadText">Toca aquí para seleccionar una foto</div>
+            <div class="upload-hint">Formatos: JPG, PNG, WEBP</div>
+            <input type="file" id="imagen" name="imagen" accept="image/*" required />
+          </div>
+          
+          <div class="preview-container" id="previewContainer">
+            <img id="imagePreview" src="" alt="Vista previa" />
+            <button type="button" class="remove-btn" id="removeImageBtn">×</button>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="spinner" id="btnSpinner"></span>
+          <span id="btnText">Publicar en el Catálogo</span>
+        </button>
+      </form>
+
+      <div class="notification" id="notification"></div>
+
+      <div class="product-list">
+        <h3 style="margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; color: var(--text-main);">Editar Precios</h3>
+        {productos.map(p => (
+          <div class="edit-item" data-id={p.id} data-imagen={p.imagen_url || ''}>
+            <img src={p.imagen_url || "https://images.unsplash.com/photo-1546842931-886c185b4c8c?q=80&w=600&auto=format&fit=crop"} alt={p.nombre} />
+            <div class="edit-info">
+              <div class="edit-name">{p.nombre}</div>
+            </div>
+            <div class="edit-price-wrapper">
+              <span style="color: var(--text-muted);">$</span>
+              <input type="number" class="edit-price-input" value={p.precio} step="0.01" />
+              <button class="btn-update">Guardar</button>
+              <button class="btn-delete" title="Eliminar Obra">🗑</button>
+            </div>
+          </div>
+        ))}
+        {productos.length === 0 && <p style="font-size: 13px; color: var(--text-muted);">No hay productos en el catálogo aún.</p>}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Lógica de Login
+    const loginSection = document.getElementById("loginSection");
+    const mainApp = document.getElementById("mainApp");
+    const loginBtn = document.getElementById("loginBtn");
+    const adminPass = document.getElementById("adminPass");
+    const loginError = document.getElementById("loginError");
+
+    // Verificar si ya está logueado por sessionStorage
+    if (sessionStorage.getItem('isAdmin') === 'true' && sessionStorage.getItem('adminPass')) {
+      loginSection.style.display = "none";
+      mainApp.style.display = "block";
+    }
+
+    const verifyAdmin = async () => {
+      const password = adminPass.value;
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Verificando...';
+
+      try {
+        const response = await fetch('/api/verify-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        
+        const result = await response.json();
+
+        if (result.success) {
+          sessionStorage.setItem('isAdmin', 'true');
+          sessionStorage.setItem('adminPass', password);
+          loginSection.style.display = "none";
+          mainApp.style.display = "block";
+        } else {
+          loginError.style.display = "block";
+          loginError.textContent = result.message || 'Contraseña incorrecta.';
+        }
+      } catch (error) {
+        loginError.style.display = "block";
+        loginError.textContent = 'Error de conexión.';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Ingresar';
+      }
+    };
+
+    loginBtn.addEventListener("click", verifyAdmin);
+    adminPass.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") verifyAdmin();
+    });
+  </script>
+
+  <script>
+    const form = document.getElementById("formProducto");
+    const imagenInput = document.getElementById("imagen");
+    const uploadWrapper = document.getElementById("uploadWrapper");
+    const previewContainer = document.getElementById("previewContainer");
+    const imagePreview = document.getElementById("imagePreview");
+    const removeImageBtn = document.getElementById("removeImageBtn");
+    
+    const submitBtn = document.getElementById("submitBtn");
+    const btnSpinner = document.getElementById("btnSpinner");
+    const btnText = document.getElementById("btnText");
+
+    // Vista previa
+    imagenInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imagePreview.src = event.target.result;
+          uploadWrapper.style.display = "none";
+          previewContainer.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    removeImageBtn.addEventListener("click", () => {
+      imagenInput.value = "";
+      imagePreview.src = "";
+      previewContainer.style.display = "none";
+      uploadWrapper.style.display = "block";
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const notification = document.getElementById("notification");
+      notification.style.display = "none";
+      notification.className = "notification";
+
+      const nombre = document.getElementById("nombre").value.trim();
+      const descripcion = document.getElementById("descripcion").value.trim();
+      const precio = document.getElementById("precio").value;
+      const imagen = imagenInput.files[0];
+
+      if (!imagen) {
+        notification.textContent = "Debes seleccionar una fotografía.";
+        notification.className = "notification error";
+        notification.style.display = "block";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      btnSpinner.style.display = "inline-block";
+      btnText.textContent = "Publicando...";
+      form.style.opacity = "0.6";
+
+      try {
+        // Enviar como FormData al endpoint API del servidor
+        const fd = new FormData();
+        fd.append("nombre", nombre);
+        fd.append("descripcion", descripcion);
+        fd.append("precio", precio);
+        fd.append("imagen", imagen);
+        fd.append("password", sessionStorage.getItem("adminPass"));
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: fd
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Error desconocido en el servidor");
+        }
+
+        notification.textContent = result.message;
+        notification.className = "notification success";
+        notification.style.display = "block";
+        
+        form.reset();
+        previewContainer.style.display = "none";
+        uploadWrapper.style.display = "block";
+
+        // Redireccionar al inicio después de 1.5 segundos
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1500);
+
+      } catch (err) {
+        notification.textContent = err.message;
+        notification.className = "notification error";
+        notification.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        btnSpinner.style.display = "none";
+        btnText.textContent = "Publicar en el Catálogo";
+        form.style.opacity = "1";
+      }
+    });
+
+    // Lógica de Actualización de Precios
+    document.querySelectorAll('.btn-update').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const itemDiv = e.target.closest('.edit-item');
+        const id = itemDiv.getAttribute('data-id');
+        const input = itemDiv.querySelector('.edit-price-input');
+        const nuevoPrecio = input.value;
+        const password = sessionStorage.getItem('adminPass');
+
+        const originalText = e.target.textContent;
+        e.target.textContent = '...';
+        e.target.disabled = true;
+
+        try {
+          const res = await fetch('/api/update-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, precio: nuevoPrecio, password })
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            e.target.textContent = '✓ Ok';
+            e.target.style.background = '#34d399';
+            setTimeout(() => {
+              e.target.textContent = originalText;
+              e.target.style.background = '';
+              e.target.disabled = false;
+            }, 2000);
+          } else {
+            alert(result.message || 'Error al actualizar');
+            e.target.textContent = originalText;
+            e.target.disabled = false;
+          }
+        } catch (error) {
+          alert('Error de conexión');
+          e.target.textContent = originalText;
+          e.target.disabled = false;
+        }
+      });
+    });
+
+    // Lógica para Eliminar Productos
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        if (!confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?')) return;
+        
+        const itemDiv = e.target.closest('.edit-item');
+        const id = itemDiv.getAttribute('data-id');
+        const imagen_url = itemDiv.getAttribute('data-imagen');
+        const password = sessionStorage.getItem('adminPass');
+
+        const originalText = e.target.textContent;
+        e.target.textContent = '...';
+        e.target.disabled = true;
+
+        try {
+          const res = await fetch('/api/delete-product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, imagen_url, password })
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            itemDiv.style.opacity = '0';
+            setTimeout(() => itemDiv.remove(), 300);
+          } else {
+            alert(result.message || 'Error al eliminar');
+            e.target.textContent = originalText;
+            e.target.disabled = false;
+          }
+        } catch (error) {
+          alert('Error de conexión');
+          e.target.textContent = originalText;
+          e.target.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
