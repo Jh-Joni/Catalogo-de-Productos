@@ -75,7 +75,7 @@ export const productos = [
   id: 9,
   nombre: "Arreglo floral Loto Primavera",
   descripcion: "Hay personas que hacen florecer cada momento con su alegría y su forma de ser. Este arreglo es una manera especial de agradecer su compañía, celebrar sus logros o simplemente recordarle lo importante que es en tu vida. Un detalle lleno de color que deja una huella difícil de olvidar.",
-  precio: 18.00,
+  precio: 20.00,
   categoria: "Arreglos Florales",
   imagen: "/imagenes/productos/Arreglo-floral.jpeg",
   disponible: true
@@ -84,7 +84,7 @@ export const productos = [
   id: 10,
   nombre: "Cesta  de rosas",
   descripcion: "Hay regalos que hablan por sí solos. Esta canasta floral reúne una hermosa combinación de colores para celebrar un cumpleaños, felicitar un logro o agradecer a alguien que hace la diferencia. Un detalle que llena cualquier espacio de vida, alegría y buenos recuerdos.",
-  precio: 20.00,
+  precio: 23.00,
   categoria: "Arreglos Florales",
   imagen: "/imagenes/productos/cesta-rosas.png",
   disponible: true
